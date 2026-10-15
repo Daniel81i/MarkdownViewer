@@ -1,0 +1,36 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- ライトテーマ: 従来の配色をそのままキー化したもの -->
+    <SolidColorBrush x:Key="AppToolbarBackgroundBrush" Color="#F6F7F8" />
+    <SolidColorBrush x:Key="AppToolbarBorderBrush" Color="#D9D9D9" />
+    <SolidColorBrush x:Key="AppPaneBackgroundBrush" Color="#FCFCFC" />
+    <SolidColorBrush x:Key="AppOutlineBackgroundBrush" Color="#F8F9FA" />
+    <SolidColorBrush x:Key="AppPaneHeaderBackgroundBrush" Color="#F6F7F8" />
+    <SolidColorBrush x:Key="AppPaneHeaderBorderBrush" Color="#E2E2E2" />
+
+    <SolidColorBrush x:Key="AppTextBrush" Color="#222222" />
+    <SolidColorBrush x:Key="AppTextSubtleBrush" Color="#444444" />
+    <SolidColorBrush x:Key="AppTextMutedBrush" Color="#666666" />
+    <SolidColorBrush x:Key="AppSuccessTextBrush" Color="#236A3B" />
+
+    <SolidColorBrush x:Key="AppSelectionBackgroundBrush" Color="#E8F0FE" />
+    <SolidColorBrush x:Key="AppDropIndicatorBrush" Color="#2F6FEB" />
+
+    <SolidColorBrush x:Key="AppIconBrush" Color="#666666" />
+    <SolidColorBrush x:Key="AppIconInactiveBrush" Color="#8C8C8C" />
+    <SolidColorBrush x:Key="AppIconActiveBrush" Color="#2563EB" />
+    <SolidColorBrush x:Key="AppIconWarningBrush" Color="#C2650D" />
+    <SolidColorBrush x:Key="AppIconSuccessBrush" Color="#0B6623" />
+
+    <SolidColorBrush x:Key="AppSourceBackgroundBrush" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="AppSourceForegroundBrush" Color="#1E1E1E" />
+
+    <!-- 小さなウインドウ (バージョン情報など) -->
+    <SolidColorBrush x:Key="AppWindowBackgroundBrush" Color="#F7F8FA" />
+    <SolidColorBrush x:Key="AppCardBackgroundBrush" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="AppCardBorderBrush" Color="#D9DDE3" />
+    <SolidColorBrush x:Key="AppCardTitleBrush" Color="#1F2937" />
+    <SolidColorBrush x:Key="AppCardBodyBrush" Color="#374151" />
+    <SolidColorBrush x:Key="AppCardSubtleBrush" Color="#4B5563" />
+    <SolidColorBrush x:Key="AppCardMutedBrush" Color="#6B7280" />
+</ResourceDictionary>

@@ -22,7 +22,7 @@
                            ToolTip="{Binding Title}"
                            TextTrimming="CharacterEllipsis"
                            FontSize="11"
-                           Foreground="#333" />
+                           Foreground="{DynamicResource AppTextBrush}" />
             </Border>
         </DataTemplate>
 
@@ -37,7 +37,7 @@
                             <DataTrigger Binding="{Binding IsActiveDocument}"
                                          Value="True">
                                 <Setter Property="Background"
-                                        Value="#E8F0FE" />
+                                        Value="{DynamicResource AppSelectionBackgroundBrush}" />
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
@@ -47,24 +47,32 @@
                                ToolTip="{Binding FullPath}"
                                TextTrimming="CharacterEllipsis"
                                FontSize="12"
-                               Foreground="#222" />
+                               Foreground="{DynamicResource AppTextBrush}" />
                     <TextBlock Text="{Binding LastUpdatedText}"
                                ToolTip="{Binding FullPath}"
                                TextTrimming="CharacterEllipsis"
                                FontSize="10"
-                               Foreground="#666"
+                               Foreground="{DynamicResource AppTextMutedBrush}"
                                Margin="0,1,0,0" />
                 </StackPanel>
             </Border>
         </DataTemplate>
 
         <DataTemplate x:Key="DocumentHeaderTemplate">
-            <Border Padding="12,3">
+            <StackPanel Orientation="Horizontal"
+                        Margin="2,3">
+                <TextBlock FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets"
+                           FontSize="12"
+                           Text="&#xE8A5;"
+                           VerticalAlignment="Center"
+                           Margin="0,1,6,0"
+                           Opacity="0.8" />
                 <TextBlock Text="{Binding Title}"
-                           HorizontalAlignment="Center"
-                           TextAlignment="Center"
+                           FontSize="12"
+                           VerticalAlignment="Center"
+                           MaxWidth="220"
                            TextTrimming="CharacterEllipsis" />
-            </Border>
+            </StackPanel>
         </DataTemplate>
 
         <Style x:Key="OutlineListBoxItemStyle"
@@ -100,9 +108,9 @@
                 x:Name="ToolbarBorder"
                 AllowDrop="True"
                 Padding="8"
-                BorderBrush="#D9D9D9"
+                BorderBrush="{DynamicResource AppToolbarBorderBrush}"
                 BorderThickness="0,0,0,1"
-                Background="#F6F7F8"
+                Background="{DynamicResource AppToolbarBackgroundBrush}"
                 DragOver="ToolbarBorder_DragOver"
                 Drop="ToolbarBorder_Drop">
             <Border.ContextMenu>
@@ -126,6 +134,7 @@
                 <StackPanel Grid.Column="0"
                             Orientation="Horizontal">
                     <ToggleButton x:Name="HistoryToggleButton"
+                                  Padding="0"
                                   Width="32"
                                   Height="32"
                                   Margin="0,0,8,0"
@@ -140,6 +149,7 @@
                     </ToggleButton>
 
                     <Button x:Name="OpenFileButton"
+                            Padding="0"
                             Width="32"
                             Height="32"
                             Margin="0,0,8,0"
@@ -153,6 +163,7 @@
                     </Button>
 
                     <Button x:Name="ReloadButton"
+                            Padding="0"
                             Width="32"
                             Height="32"
                             Margin="0,0,8,0"
@@ -166,6 +177,7 @@
                     </Button>
 
                     <Button x:Name="GoToLineButton"
+                            Padding="0"
                             Width="40"
                             Height="32"
                             Click="GoToLineButton_Click"
@@ -186,11 +198,12 @@
                            Margin="8,0,8,0"
                            TextTrimming="CharacterEllipsis"
                            FontSize="13"
-                           Foreground="#444" />
+                           Foreground="{DynamicResource AppTextSubtleBrush}" />
 
                 <StackPanel Grid.Column="2"
                             Orientation="Horizontal">
                     <Button x:Name="OutlineLayoutButton"
+                            Padding="0"
                             Width="32"
                             Height="32"
                             Margin="0,0,8,0"
@@ -200,12 +213,13 @@
                                    FontFamily="Segoe MDL2 Assets"
                                    FontSize="14"
                                    Text="&#xE8A9;"
-                                   Foreground="#666"
+                                   Foreground="{DynamicResource AppIconBrush}"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center" />
                     </Button>
 
                     <ToggleButton x:Name="SourceViewToggleButton"
+                                  Padding="0"
                                   Width="32"
                                   Height="32"
                                   Margin="0,0,8,0"
@@ -215,12 +229,13 @@
                                    FontFamily="Segoe MDL2 Assets"
                                    FontSize="14"
                                    Text="&#xE943;"
-                                   Foreground="#666"
+                                   Foreground="{DynamicResource AppIconBrush}"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center" />
                     </ToggleButton>
 
                     <ToggleButton x:Name="UnsafeHtmlToggleButton"
+                                  Padding="0"
                                   Width="32"
                                   Height="32"
                                   Click="UnsafeHtmlToggleButton_Click"
@@ -229,12 +244,13 @@
                                    FontFamily="Segoe MDL2 Assets"
                                    FontSize="14"
                                    Text="&#xE7BA;"
-                                   Foreground="#666"
+                                   Foreground="{DynamicResource AppIconBrush}"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center" />
                     </ToggleButton>
 
                     <Button x:Name="SettingsButton"
+                            Padding="0"
                             Width="32"
                             Height="32"
                             Margin="8,0,0,0"
@@ -281,7 +297,7 @@
                                                       CanDockAsTabbedDocument="False"
                                                       AutoHideWidth="220"
                                                       AutoHideHeight="280">
-                                    <Border Background="#FCFCFC">
+                                    <Border Background="{DynamicResource AppPaneBackgroundBrush}">
                                         <ListBox x:Name="HistoryListBox"
                                                  AllowDrop="True"
                                                  BorderThickness="0"
@@ -310,7 +326,7 @@
                                                 <DataTemplate>
                                                     <Border Margin="0"
                                                             HorizontalAlignment="Stretch"
-                                                            BorderBrush="#2F6FEB">
+                                                            BorderBrush="{DynamicResource AppDropIndicatorBrush}">
                                                         <Border.Style>
                                                             <Style TargetType="Border">
                                                                 <Setter Property="BorderThickness"
@@ -334,12 +350,12 @@
                                                                        ToolTip="{Binding FullPath}"
                                                                        TextTrimming="CharacterEllipsis"
                                                                        FontSize="12"
-                                                                       Foreground="#222" />
+                                                                       Foreground="{DynamicResource AppTextBrush}" />
                                                             <TextBlock Text="{Binding SecondaryText}"
                                                                        ToolTip="{Binding FullPath}"
                                                                        TextTrimming="CharacterEllipsis"
                                                                        FontSize="10"
-                                                                       Foreground="#666"
+                                                                       Foreground="{DynamicResource AppTextMutedBrush}"
                                                                        Margin="0,1,0,0"
                                                                        Visibility="{Binding SecondaryTextVisibility}" />
                                                         </StackPanel>
@@ -357,7 +373,7 @@
                                                       AutoHideWidth="220"
                                                       AutoHideHeight="280">
                                     <Border x:Name="FilesPaneContentRoot"
-                                            Background="#FCFCFC">
+                                            Background="{DynamicResource AppPaneBackgroundBrush}">
                                         <Grid>
                                             <Grid.RowDefinitions>
                                                 <RowDefinition Height="Auto" />
@@ -367,8 +383,8 @@
                                             <Border Grid.Row="0"
                                                     Margin="0"
                                                     Padding="8,8,8,6"
-                                                    Background="#F6F7F8"
-                                                    BorderBrush="#E2E2E2"
+                                                    Background="{DynamicResource AppPaneHeaderBackgroundBrush}"
+                                                    BorderBrush="{DynamicResource AppPaneHeaderBorderBrush}"
                                                     BorderThickness="0,0,0,1">
                                                 <Grid>
                                                     <Grid.RowDefinitions>
@@ -386,7 +402,7 @@
                                                                    VerticalAlignment="Center"
                                                                    Margin="0,0,8,0"
                                                                    FontSize="11"
-                                                                   Foreground="#555"
+                                                                   Foreground="{DynamicResource AppTextMutedBrush}"
                                                                    Text="並び順" />
 
                                                         <ComboBox x:Name="FilesSortComboBox"
@@ -413,7 +429,7 @@
                                                         <TextBlock x:Name="CurrentDirectoryPathTextBlock"
                                                                    Grid.Column="0"
                                                                    FontSize="10"
-                                                                   Foreground="#666"
+                                                                   Foreground="{DynamicResource AppTextMutedBrush}"
                                                                    TextTrimming="CharacterEllipsis"
                                                                    Cursor="Hand"
                                                                    Background="Transparent"
@@ -424,7 +440,7 @@
                                                                    Margin="8,0,0,0"
                                                                    FontSize="10"
                                                                    FontWeight="SemiBold"
-                                                                   Foreground="#236A3B"
+                                                                   Foreground="{DynamicResource AppSuccessTextBrush}"
                                                                    Text="コピーしました"
                                                                    Visibility="Collapsed" />
                                                     </Grid>
@@ -455,7 +471,7 @@
                                                       CanDockAsTabbedDocument="False"
                                                       AutoHideWidth="260"
                                                       AutoHideHeight="240">
-                                    <Border Background="#F8F9FA">
+                                    <Border Background="{DynamicResource AppOutlineBackgroundBrush}">
                                         <ListBox x:Name="OutlineListBox"
                                                  BorderThickness="0"
                                                  Background="Transparent"

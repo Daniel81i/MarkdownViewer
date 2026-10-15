@@ -21,14 +21,14 @@
                        Text="指定行へ移動" />
             <TextBlock Margin="0,8,0,0"
                        FontSize="12"
-                       Foreground="#555"
+                       Foreground="{DynamicResource AppTextMutedBrush}"
                        Text="{Binding LineCountDescription}" />
         </StackPanel>
 
         <StackPanel Grid.Row="1"
                     Margin="0,16,0,0">
             <TextBlock FontSize="13"
-                       Foreground="#333"
+                       Foreground="{DynamicResource AppTextBrush}"
                        Text="行番号" />
             <TextBox x:Name="LineNumberTextBox"
                      Height="32"

@@ -4,6 +4,22 @@
 
 形式は Keep a Changelog をベースにし、バージョン番号は Semantic Versioning に準拠します。
 
+## [Unreleased]
+
+### Added
+
+- ダークモードに対応（設定ダイアログの「テーマ」で「システム設定に従う / ライト / ダーク」を選択）
+- 「システム設定に従う」では Windows のアプリモード（`AppsUseLightTheme`）を監視し、実行中の切り替えにも追従
+- ダークタイトルバー、Fluent テーマ（`Application.ThemeMode`）、AvalonDock の VS2013 Dark テーマに対応
+- プレビュー側の配色切り替え（github-markdown-css / Prism / Mermaid）。Prism 用のライトテーマ `prism-light.css` を追加
+- 動作確認用のサンプル `samples/dark-mode-check.md` を追加
+
+### Changed
+
+- 画面内の固定色（`#222` など）を `Themes/LightColors.xaml` / `Themes/DarkColors.xaml` のブラシ参照に変更
+- 標準コントロールの見た目が Fluent テーマ（Windows 11 風）になる
+- `settings.json` に `Theme` を追加（`System` / `Light` / `Dark`、既定は `System`）
+
 ## [0.8.0] - 2026-04-01
 
 ### Added

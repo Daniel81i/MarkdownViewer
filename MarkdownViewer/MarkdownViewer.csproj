@@ -10,6 +10,8 @@
     <Version>0.8.0</Version>
     <AssemblyVersion>0.8.0.0</AssemblyVersion>
     <FileVersion>0.8.0.0</FileVersion>
+    <!-- Fluent テーマ (ThemeMode) は .NET 9 以降の実験的 API のため警告を抑制 -->
+    <NoWarn>$(NoWarn);WPF0001</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
@@ -32,6 +34,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3179.45" />
     <PackageReference Include="Dirkster.AvalonDock" Version="4.72.1" />
+    <PackageReference Include="Dirkster.AvalonDock.Themes.VS2013" Version="4.72.1" />
   </ItemGroup>
 
 </Project>

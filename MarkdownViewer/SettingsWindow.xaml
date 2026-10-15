@@ -3,13 +3,14 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="設定"
         Width="560"
-        Height="260"
+        Height="340"
         MinWidth="520"
-        MinHeight="260"
+        MinHeight="340"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize">
     <Grid Margin="20">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -23,11 +24,11 @@
         <StackPanel Grid.Row="1"
                     Margin="0,16,0,0">
             <TextBlock FontSize="13"
-                       Foreground="#333"
+                       Foreground="{DynamicResource AppTextBrush}"
                        Text="エディタのパス" />
             <TextBlock Margin="0,4,0,0"
                        FontSize="12"
-                       Foreground="#666"
+                       Foreground="{DynamicResource AppTextMutedBrush}"
                        Text="外部エディタとして起動する実行ファイルを指定します。" />
         </StackPanel>
 
@@ -60,6 +61,28 @@
         </Grid>
 
         <StackPanel Grid.Row="3"
+                    Margin="0,20,0,0">
+            <TextBlock FontSize="13"
+                       Foreground="{DynamicResource AppTextBrush}"
+                       Text="テーマ" />
+            <TextBlock Margin="0,4,0,0"
+                       FontSize="12"
+                       Foreground="{DynamicResource AppTextMutedBrush}"
+                       Text="画面の配色を選択します。「システム設定に従う」は Windows のアプリモードに追従します。" />
+            <ComboBox x:Name="ThemeComboBox"
+                      Height="32"
+                      Margin="0,8,0,0"
+                      VerticalContentAlignment="Center">
+                <ComboBoxItem Tag="System"
+                              Content="システム設定に従う" />
+                <ComboBoxItem Tag="Light"
+                              Content="ライト" />
+                <ComboBoxItem Tag="Dark"
+                              Content="ダーク" />
+            </ComboBox>
+        </StackPanel>
+
+        <StackPanel Grid.Row="4"
                     Margin="0,20,0,0"
                     HorizontalAlignment="Right"
                     Orientation="Horizontal">

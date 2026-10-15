@@ -129,4 +129,6 @@ public sealed class AppSettings {
   public string EditorPath { get; set; } = string.Empty;
   public string DockLayoutXml { get; set; } = string.Empty;
   public string DirectoryFileSortMode { get; set; } = "LastWriteTimeDescending";
+  // "System" (OS のアプリモードに従う) / "Light" / "Dark"
+  public string Theme { get; set; } = "System";
 }

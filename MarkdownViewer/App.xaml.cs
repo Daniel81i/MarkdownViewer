@@ -28,6 +28,8 @@ public partial class App : Application {
 
     DispatcherUnhandledException += OnUnhandledException;
 
+    ThemeManager.Initialize(ThemeManager.ParseSetting(new SettingRepository().Load().Theme));
+
     StartPrimaryWindow(e, e.Args.FirstOrDefault());
   }
 
@@ -46,6 +48,7 @@ public partial class App : Application {
   }
 
   protected override void OnExit(ExitEventArgs e) {
+    ThemeManager.Shutdown();
     activationListenerCancellation?.Cancel();
 
     try {

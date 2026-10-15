@@ -1,0 +1,118 @@
+/*
+ * prism-light.css
+ * MarkdownViewer 用に作成した Prism のライトテーマ (GitHub ライト風の配色)。
+ * prism-okaidia.min.css (ダーク) と同じセレクタ構成で、配色だけを差し替えている。
+ */
+code[class*=language-],
+pre[class*=language-] {
+  color: #24292f;
+  background: none;
+  font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+  font-size: 1em;
+  text-align: left;
+  white-space: pre;
+  word-spacing: normal;
+  word-break: normal;
+  word-wrap: normal;
+  line-height: 1.5;
+  -moz-tab-size: 4;
+  -o-tab-size: 4;
+  tab-size: 4;
+  -webkit-hyphens: none;
+  -moz-hyphens: none;
+  -ms-hyphens: none;
+  hyphens: none;
+}
+
+pre[class*=language-] {
+  padding: 1em;
+  margin: .5em 0;
+  overflow: auto;
+  border-radius: .3em;
+}
+
+:not(pre) > code[class*=language-],
+pre[class*=language-] {
+  background: #f6f8fa;
+}
+
+:not(pre) > code[class*=language-] {
+  padding: .1em;
+  border-radius: .3em;
+  white-space: normal;
+}
+
+.token.cdata,
+.token.comment,
+.token.doctype,
+.token.prolog {
+  color: #6e7781;
+}
+
+.token.punctuation {
+  color: #24292f;
+}
+
+.token.namespace {
+  opacity: .7;
+}
+
+.token.constant,
+.token.deleted,
+.token.property,
+.token.symbol,
+.token.tag {
+  color: #116329;
+}
+
+.token.boolean,
+.token.number {
+  color: #0550ae;
+}
+
+.token.attr-name,
+.token.builtin,
+.token.char,
+.token.inserted,
+.token.selector,
+.token.string {
+  color: #0a3069;
+}
+
+.language-css .token.string,
+.style .token.string,
+.token.entity,
+.token.operator,
+.token.url,
+.token.variable {
+  color: #24292f;
+}
+
+.token.atrule,
+.token.attr-value,
+.token.class-name,
+.token.function {
+  color: #8250df;
+}
+
+.token.keyword {
+  color: #cf222e;
+}
+
+.token.important,
+.token.regex {
+  color: #953800;
+}
+
+.token.bold,
+.token.important {
+  font-weight: 700;
+}
+
+.token.italic {
+  font-style: italic;
+}
+
+.token.entity {
+  cursor: help;
+}

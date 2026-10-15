@@ -8,7 +8,7 @@
         MinHeight="300"
         ResizeMode="NoResize"
         WindowStartupLocation="CenterOwner"
-        Background="#F7F8FA">
+        Background="{DynamicResource AppWindowBackgroundBrush}">
     <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
@@ -16,27 +16,27 @@
         </Grid.RowDefinitions>
 
         <Border Padding="18"
-                Background="White"
-                BorderBrush="#D9DDE3"
+                Background="{DynamicResource AppCardBackgroundBrush}"
+                BorderBrush="{DynamicResource AppCardBorderBrush}"
                 BorderThickness="1"
                 CornerRadius="10">
             <StackPanel>
                 <TextBlock Text="Markdown Viewer"
                            FontSize="22"
                            FontWeight="SemiBold"
-                           Foreground="#1F2937" />
+                           Foreground="{DynamicResource AppCardTitleBrush}" />
                 <TextBlock x:Name="VersionTextBlock"
                            Margin="0,10,0,0"
                            FontSize="13"
-                           Foreground="#4B5563" />
+                           Foreground="{DynamicResource AppCardSubtleBrush}" />
                 <TextBlock Margin="0,18,0,0"
                            FontSize="12"
-                           Foreground="#6B7280"
+                           Foreground="{DynamicResource AppCardMutedBrush}"
                            TextWrapping="Wrap"
                            Text="Markdown ファイルをプレビュー表示するデスクトップアプリケーションです。" />
                 <TextBlock Margin="0,16,0,0"
                            FontSize="12"
-                           Foreground="#374151">
+                           Foreground="{DynamicResource AppCardBodyBrush}">
                     <Hyperlink Click="ReleasePageHyperlink_Click">リリースページを開く</Hyperlink>
                 </TextBlock>
             </StackPanel>

@@ -1,15 +1,28 @@
 using Microsoft.Win32;
 using System.IO;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace MarkdownViewer;
 
 public partial class SettingsWindow : Window {
   public string EditorPath => EditorPathTextBox.Text.Trim();
 
-  public SettingsWindow(string? initialEditorPath) {
+  public ThemeSetting SelectedTheme =>
+    (ThemeComboBox.SelectedItem as ComboBoxItem)?.Tag is string tag
+      ? ThemeManager.ParseSetting(tag)
+      : ThemeSetting.System;
+
+  public SettingsWindow(string? initialEditorPath, ThemeSetting initialTheme) {
     InitializeComponent();
     EditorPathTextBox.Text = initialEditorPath ?? string.Empty;
+
+    foreach(var item in ThemeComboBox.Items.OfType<ComboBoxItem>()) {
+      if(item.Tag is string tag && ThemeManager.ParseSetting(tag) == initialTheme) {
+        ThemeComboBox.SelectedItem = item;
+        break;
+      }
+    }
   }
 
   private void BrowseButton_Click(object sender, RoutedEventArgs e) {

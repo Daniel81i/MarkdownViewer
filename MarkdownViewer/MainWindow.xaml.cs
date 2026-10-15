@@ -17,6 +17,7 @@ using System.Windows.Media;
 using AvalonDock;
 using AvalonDock.Layout;
 using AvalonDock.Layout.Serialization;
+using AvalonDock.Themes;
 
 namespace MarkdownViewer;
 
@@ -85,6 +86,53 @@ public partial class MainWindow : Window {
     historyItems.CollectionChanged += HistoryItems_CollectionChanged;
     ApplySettings(settingRepository.Load());
     UpdateOutlineLayoutButtonAppearance();
+
+    ThemeManager.ThemeChanged += ThemeManager_ThemeChanged;
+    Closed += (_, _) => ThemeManager.ThemeChanged -= ThemeManager_ThemeChanged;
+    ApplyTheme(rerenderDocuments: false);
+  }
+
+  private void ThemeManager_ThemeChanged(object? sender, EventArgs e) {
+    ApplyTheme(rerenderDocuments: true);
+  }
+
+  /// <summary>
+  /// ライト/ダーク切り替え時に、XAML の DynamicResource では追従できない部分
+  /// (AvalonDock のテーマ、WebView2 の配色、レンダリング済み HTML) を更新する。
+  /// </summary>
+  private void ApplyTheme(bool rerenderDocuments) {
+    MainDockingManager.Theme = ThemeManager.IsDark ? new Vs2013DarkTheme() : null;
+
+    var activeDocument = rerenderDocuments ? GetActiveDocumentTab() : null;
+    foreach(var documentTab in openDocuments.Values) {
+      ApplyWebViewTheme(documentTab.WebView);
+
+      if(!rerenderDocuments || !documentTab.IsInitialized) {
+        continue;
+      }
+
+      if(ReferenceEquals(documentTab, activeDocument)) {
+        _ = RenderMarkdownFileAsync(documentTab);
+      } else {
+        // 非アクティブなタブは、次に表示するときに新しい配色で描画し直す。
+        documentTab.RequiresActivationRender = true;
+      }
+    }
+  }
+
+  private static void ApplyWebViewTheme(WebView2 webView) {
+    var isDark = ThemeManager.IsDark;
+    // ページ描画前の背景色 (ちらつき防止)。値は HTML 側の body 背景と揃えている。
+    webView.DefaultBackgroundColor = isDark
+      ? System.Drawing.Color.FromArgb(255, 13, 17, 23)
+      : System.Drawing.Color.White;
+
+    if(webView.CoreWebView2 is not null) {
+      // github-markdown-css の prefers-color-scheme に反映される。
+      webView.CoreWebView2.Profile.PreferredColorScheme = isDark
+        ? CoreWebView2PreferredColorScheme.Dark
+        : CoreWebView2PreferredColorScheme.Light;
+    }
   }
 
   private void HistoryItems_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) {
@@ -340,7 +388,7 @@ public partial class MainWindow : Window {
   }
 
   private void OpenSettingsDialog() {
-    var settingsWindow = new SettingsWindow(editorPath) {
+    var settingsWindow = new SettingsWindow(editorPath, ThemeManager.Setting) {
       Owner = this
     };
 
@@ -350,6 +398,7 @@ public partial class MainWindow : Window {
 
     settingRepository.Update(settings => {
       settings.EditorPath = settingsWindow.EditorPath;
+      settings.Theme = settingsWindow.SelectedTheme.ToString();
     });
 
     (Application.Current as App)?.RefreshAllWindowsFromSettings();
@@ -1067,7 +1116,7 @@ public partial class MainWindow : Window {
     var baseDirectory = Path.GetDirectoryName(documentTab.FullPath) ?? Environment.CurrentDirectory;
     ConfigureVirtualHostMapping(documentTab.WebView, baseDirectory);
 
-    var html = BuildHtml(markdownText, VirtualHostBaseUri, Path.GetFileName(documentTab.FullPath), isUnsafeHtmlEnabled);
+    var html = BuildHtml(markdownText, VirtualHostBaseUri, Path.GetFileName(documentTab.FullPath), isUnsafeHtmlEnabled, ThemeManager.IsDark);
     DebugLog(documentTab, $"NavigateToString start. HtmlLength={html.Length}");
     documentTab.WebView.NavigateToString(html);
     documentTab.RequiresActivationRender = false;
@@ -1088,21 +1137,28 @@ public partial class MainWindow : Window {
     var safeTitle = HtmlEncoder.Default.Encode(title);
     var safeMessage = HtmlEncoder.Default.Encode(message);
 
+    var isDark = ThemeManager.IsDark;
+    var pageBackground = isDark ? "#0d1117" : "#ffffff";
+    var pageForeground = isDark ? "#e6edf3" : "#222";
+    var pageMuted = isDark ? "#9198a1" : "#555";
+
     var html = $$"""
 <!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="utf-8">
+<meta name="color-scheme" content="{{(isDark ? "dark" : "light")}}">
 <style>
+:root { color-scheme: {{(isDark ? "dark" : "light")}}; }
 body {
   font-family: "Segoe UI", sans-serif;
   margin: 0;
   padding: 24px;
-  background: #ffffff;
-  color: #222;
+  background: {{pageBackground}};
+  color: {{pageForeground}};
 }
 h2 { margin: 0 0 12px; }
-p { color: #555; }
+p { color: {{pageMuted}}; }
 </style>
 </head>
 <body>
@@ -1120,25 +1176,36 @@ p { color: #555; }
     await Task.CompletedTask;
   }
 
-  private static string BuildHtml(string markdownText, string baseUri, string title, bool isUnsafeHtmlEnabled) {
+  private static string BuildHtml(string markdownText, string baseUri, string title, bool isUnsafeHtmlEnabled, bool isDark) {
     var markdownJson = JsonSerializer.Serialize(markdownText);
     var baseUriJson = JsonSerializer.Serialize(baseUri);
     var titleJson = JsonSerializer.Serialize(title);
     var isUnsafeHtmlEnabledJson = JsonSerializer.Serialize(isUnsafeHtmlEnabled);
+    var colorScheme = isDark ? "dark" : "light";
+    var prismThemePath = isDark ? "prism/themes/prism-okaidia.min.css" : "prism/themes/prism-light.css";
+    var mermaidTheme = isDark ? "dark" : "neutral";
+    var pageBackground = isDark ? "#0d1117" : "#ffffff";
+    var mermaidBlockBackground = isDark ? "#151b23" : "#f6f8fa";
+    var mermaidBlockBorder = isDark ? "#3d444d" : "#e1e4e8";
 
     return $$"""
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" data-theme="{{colorScheme}}">
 <head>
   <meta charset="utf-8">
+  <meta name="color-scheme" content="{{colorScheme}}">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: blob: https://markdown.local https://appassets.local file:; img-src 'self' data: https://markdown.local file:; style-src 'self' 'unsafe-inline' https://appassets.local; script-src 'self' 'unsafe-inline' https://appassets.local; font-src 'self' data: https://appassets.local;">
   <link rel="stylesheet" href="https://appassets.local/vendor/github-markdown-css/github-markdown.css">
-  <link rel="stylesheet" href="https://appassets.local/vendor/prism/themes/prism-okaidia.min.css">
+  <link rel="stylesheet" href="https://appassets.local/vendor/{{prismThemePath}}">
   <link rel="stylesheet" href="https://appassets.local/vendor/prism/plugins/line-numbers/prism-line-numbers.min.css">
   <style>
+    :root {
+      color-scheme: {{colorScheme}};
+    }
+
     body {
       margin: 0;
-      background: #ffffff;
+      background: {{pageBackground}};
     }
 
     .markdown-body {
@@ -1151,8 +1218,8 @@ p { color: #555; }
     }
 
     pre.language-mermaid {
-      background: #f6f8fa;
-      border: 1px solid #e1e4e8;
+      background: {{mermaidBlockBackground}};
+      border: 1px solid {{mermaidBlockBorder}};
       border-radius: 8px;
       padding: 8px;
       overflow-x: auto;
@@ -1331,7 +1398,7 @@ p { color: #555; }
       }
 
       Prism.highlightAll();
-      mermaid.initialize({ securityLevel: 'strict', theme: 'neutral' });
+      mermaid.initialize({ securityLevel: 'strict', theme: '{{mermaidTheme}}' });
       mermaid.init(undefined, document.querySelectorAll('pre.language-mermaid'));
     })();
   </script>
@@ -1522,6 +1589,7 @@ p { color: #555; }
 
     try {
       editorPath = EditorPathResolver.Resolve(settings.EditorPath);
+      ThemeManager.SetSetting(ThemeManager.ParseSetting(settings.Theme));
       currentDirectoryFileSortMode = ParseDirectoryFileSortMode(settings.DirectoryFileSortMode);
       ApplyHistoryPaneVisibility(settings.IsHistoryPaneVisible);
       UpdateHistoryToggleState();
@@ -1579,9 +1647,9 @@ p { color: #555; }
   private void UpdateOutlineLayoutButtonAppearance() {
     var outlineAnchorable = GetOutlineAnchorable();
     var isVisible = outlineAnchorable?.IsVisible == true || outlineAnchorable?.IsAutoHidden == true;
-    OutlineLayoutIconTextBlock!.Foreground = isVisible
-      ? new SolidColorBrush(Color.FromRgb(37, 99, 235))
-      : new SolidColorBrush(Color.FromRgb(140, 140, 140));
+    OutlineLayoutIconTextBlock!.SetResourceReference(
+      TextBlock.ForegroundProperty,
+      isVisible ? "AppIconActiveBrush" : "AppIconInactiveBrush");
     OutlineLayoutButton!.ToolTip = isVisible
       ? "アウトラインを表示してアクティブ化"
       : "アウトラインを再表示";
@@ -1606,9 +1674,9 @@ p { color: #555; }
   }
 
   private void UpdateUnsafeHtmlToggleAppearance() {
-    UnsafeHtmlIconTextBlock!.Foreground = isUnsafeHtmlEnabled
-      ? new SolidColorBrush(Color.FromRgb(194, 101, 13))
-      : new SolidColorBrush(Color.FromRgb(102, 102, 102));
+    UnsafeHtmlIconTextBlock!.SetResourceReference(
+      TextBlock.ForegroundProperty,
+      isUnsafeHtmlEnabled ? "AppIconWarningBrush" : "AppIconBrush");
     UnsafeHtmlToggleButton!.ToolTip = isUnsafeHtmlEnabled
       ? "HTMLサニタイズを無効化中"
       : "HTMLサニタイズを無効化";
@@ -1628,9 +1696,9 @@ p { color: #555; }
 
   private void UpdateSourceViewToggleAppearance() {
     var isSourceMode = currentViewMode == ViewMode.Source;
-    SourceViewIconTextBlock!.Foreground = isSourceMode
-      ? new SolidColorBrush(Color.FromRgb(11, 102, 35))
-      : new SolidColorBrush(Color.FromRgb(102, 102, 102));
+    SourceViewIconTextBlock!.SetResourceReference(
+      TextBlock.ForegroundProperty,
+      isSourceMode ? "AppIconSuccessBrush" : "AppIconBrush");
     SourceViewToggleButton!.ToolTip = isSourceMode
       ? "プレビュー表示に戻す"
       : "ソース表示";
@@ -1893,6 +1961,7 @@ p { color: #555; }
     }
 
     ConfigureAssetHostMapping(webView);
+    ApplyWebViewTheme(webView);
     webView.CoreWebView2.NavigationStarting += CoreWebView2_NavigationStarting;
     webView.CoreWebView2.NavigationCompleted += CoreWebView2_NavigationCompleted;
     webView.CoreWebView2.NewWindowRequested += CoreWebView2_NewWindowRequested;
@@ -1913,13 +1982,15 @@ p { color: #555; }
       HorizontalScrollBarVisibility = ScrollBarVisibility.Auto,
       VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
       BorderThickness = new Thickness(0),
-      Background = new SolidColorBrush(Color.FromRgb(255, 255, 255)),
-      Foreground = new SolidColorBrush(Color.FromRgb(30, 30, 30)),
       Padding = new Thickness(16),
       FontFamily = new FontFamily("Consolas"),
       FontSize = 13
     };
+    sourceTextBox.SetResourceReference(Control.BackgroundProperty, "AppSourceBackgroundBrush");
+    sourceTextBox.SetResourceReference(Control.ForegroundProperty, "AppSourceForegroundBrush");
     root.Children.Add(sourceTextBox);
+
+    ApplyWebViewTheme(webView);
 
     return new DocumentView(root, webView, sourceTextBox);
   }
@@ -2001,7 +2072,7 @@ p { color: #555; }
       CurrentDirectoryPathCopiedTextBlock.Visibility = Visibility.Collapsed;
       PathTextBlock.Text = string.Empty;
       PathTextBlock.ToolTip = null;
-      PathTextBlock.Foreground = new SolidColorBrush(Color.FromRgb(68, 68, 68));
+      PathTextBlock.SetResourceReference(TextBlock.ForegroundProperty, "AppTextSubtleBrush");
       suppressHistorySelectionChanged = true;
       HistoryListBox!.SelectedItem = null;
       suppressHistorySelectionChanged = false;
@@ -2021,7 +2092,7 @@ p { color: #555; }
     CurrentDirectoryPathCopiedTextBlock.Visibility = Visibility.Collapsed;
     PathTextBlock.Text = Path.GetFileName(activeDocument.FullPath);
     PathTextBlock.ToolTip = activeDocument.FullPath;
-    PathTextBlock.Foreground = new SolidColorBrush(Color.FromRgb(68, 68, 68));
+    PathTextBlock.SetResourceReference(TextBlock.ForegroundProperty, "AppTextSubtleBrush");
     SelectHistoryItem(activeDocument.FullPath);
     UpdateOutlineLayoutButtonAppearance();
   }

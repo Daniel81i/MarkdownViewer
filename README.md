@@ -23,6 +23,7 @@ WPF + WebView2 で動作する、シンプルな Markdown ビューアです。
 - シングルインスタンス起動
 - 既存インスタンスへのファイル受け渡し
 - 履歴の JSON 永続化
+- ダークモード（システム設定に追従 / ライト / ダークを設定から選択）
 
 ## 必要環境
 
@@ -95,6 +96,23 @@ MarkdownViewer.exe
   - 同名ファイルが複数ある場合のみ、区別用のフォルダ suffix を補助表示
   - 右クリックで履歴操作メニュー
 - 右ペイン: Markdown 表示領域（WebView2）
+
+## テーマ（ダークモード）
+
+[設定] ダイアログの「テーマ」で切り替えます。
+
+- システム設定に従う（既定）: Windows の「アプリモード」に追従し、実行中に変更しても即時反映します
+- ライト / ダーク: OS の設定に関係なく固定します
+
+選択は `settings.json` の `Theme`（`System` / `Light` / `Dark`）に保存されます。
+
+実装の概要:
+
+- `ThemeManager.cs`: テーマの解決、`Application.ThemeMode`（Fluent）とブラシ辞書の切り替え、タイトルバーのダーク化
+- `Themes/LightColors.xaml` / `Themes/DarkColors.xaml`: 画面内で使う色（`AppXxxBrush`）
+- プレビュー側は `BuildHtml` の `isDark` で github-markdown-css / Prism（`prism-light.css` または okaidia） / Mermaid のテーマを切り替えます
+
+見た目の確認には `samples/dark-mode-check.md` を開いてください。
 
 ## 履歴保存
 
