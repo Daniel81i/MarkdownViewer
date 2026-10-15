@@ -80,14 +80,6 @@ if (-not (Test-Path $exePath)) {
   throw "実行ファイルが見つかりません: $exePath"
 }
 
-$packageExeName = if ($Version -ne "") {
-  "$projectName-$Version-$Runtime.exe"
-} else {
-  "$projectName-$Runtime.exe"
-}
-$packageExePath = Join-Path $packageDir $packageExeName
-Copy-Item -Path $exePath -Destination $packageExePath -Force
-
 $zipName = if ($Version -ne "") {
   "$projectName-$Version-$Runtime.zip"
 } else {
@@ -99,15 +91,26 @@ if (Test-Path $zipPath) {
   Remove-Item -Path $zipPath -Force
 }
 
+# 実行に必要なファイルだけを、展開用のフォルダ (例: MarkdownViewer-0.9.0-win-x64) に入れて zip にする。
+# - WebView2 SDK 付属の API ドキュメント (*.xml) と PDB は実行に不要なので含めない
+$zipBaseName = [System.IO.Path]::GetFileNameWithoutExtension($zipName)
+$stagingRoot = Join-Path $repoRoot "$ArtifactsDir/staging"
+$stagingDir = Join-Path $stagingRoot $zipBaseName
+if (Test-Path $stagingRoot) {
+  Remove-Item -Path $stagingRoot -Recurse -Force
+}
+New-Item -ItemType Directory -Path $stagingDir -Force | Out-Null
+Copy-Item -Path (Join-Path $publishDir "*") -Destination $stagingDir -Recurse -Force
+Get-ChildItem -Path $stagingDir -Recurse -File -Include "*.xml", "*.pdb" | Remove-Item -Force
+
 Write-Step "配布用 zip を作成します: $zipPath"
-Compress-Archive -Path (Join-Path $publishDir "*") -DestinationPath $zipPath -CompressionLevel Optimal
+Compress-Archive -Path $stagingDir -DestinationPath $zipPath -CompressionLevel Optimal
+Remove-Item -Path $stagingRoot -Recurse -Force
 
 $hashFile = Join-Path $packageDir "SHA256SUMS.txt"
 $zipHash = (Get-FileHash -Path $zipPath -Algorithm SHA256).Hash.ToLowerInvariant()
-$exeHash = (Get-FileHash -Path $packageExePath -Algorithm SHA256).Hash.ToLowerInvariant()
 $hashLines = @(
-  "$zipHash  $([System.IO.Path]::GetFileName($zipPath))",
-  "$exeHash  $([System.IO.Path]::GetFileName($packageExePath))"
+  "$zipHash  $([System.IO.Path]::GetFileName($zipPath))"
 )
 
 if (-not $SkipInstaller) {

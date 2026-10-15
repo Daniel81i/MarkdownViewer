@@ -50,6 +50,18 @@ jobs:
           Get-ChildItem artifacts/package | Format-Table Name, Length
           Get-Content artifacts/package/SHA256SUMS.txt
 
+      - name: zip に実行に必要なファイルが揃っているか検証
+        shell: pwsh
+        run: |
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $zip = Get-ChildItem artifacts/package/*.zip | Select-Object -First 1
+          $entries = [System.IO.Compression.ZipFile]::OpenRead($zip.FullName).Entries.FullName
+          $entries | ForEach-Object { $_ }
+          foreach ($need in 'MarkdownViewer.exe','WebView2Loader.dll','prism-light.css','marked') {
+            if (-not ($entries | Where-Object { $_ -like "*$need*" })) { throw "zip に $need がありません" }
+          }
+          if ($entries | Where-Object { $_ -match '\.(xml|pdb|cs)$' }) { throw "不要なファイル (xml/pdb/cs) が含まれています" }
+
       - uses: actions/upload-artifact@v4
         with:
           name: MarkdownViewer-${{ steps.ver.outputs.version }}-win-x64
