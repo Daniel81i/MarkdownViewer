@@ -1,0 +1,65 @@
+name: Build
+
+on:
+  push:
+    branches: [main, "feature/**"]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: windows-latest
+    permissions:
+      contents: write   # タグ push 時に Release を作成するため
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: バージョンを決定
+        id: ver
+        shell: pwsh
+        run: |
+          if ($env:GITHUB_REF -like 'refs/tags/v*') {
+            $version = $env:GITHUB_REF_NAME.TrimStart('v')
+          } else {
+            $version = ([xml](Get-Content MarkdownViewer/MarkdownViewer.csproj)).Project.PropertyGroup.Version |
+              Where-Object { $_ } | Select-Object -First 1
+          }
+          if (-not $version) { throw "バージョンを取得できませんでした" }
+          "version=$version" >> $env:GITHUB_OUTPUT
+          Write-Host "Version: $version"
+
+      - name: NSIS をインストール
+        shell: pwsh
+        run: choco install nsis -y --no-progress
+
+      - name: ビルドとパッケージ作成 (zip / インストーラ / SHA256SUMS)
+        shell: pwsh
+        run: ./scripts/release.ps1 -Version "${{ steps.ver.outputs.version }}"
+
+      - name: 配布物の中身を表示
+        shell: pwsh
+        run: |
+          Get-ChildItem artifacts/package | Format-Table Name, Length
+          Get-Content artifacts/package/SHA256SUMS.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MarkdownViewer-${{ steps.ver.outputs.version }}-win-x64
+          path: artifacts/package/*
+          if-no-files-found: error
+
+      - name: GitHub Release を作成 (タグのみ)
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "$env:GITHUB_REF_NAME" --generate-notes --title "$env:GITHUB_REF_NAME" (Get-ChildItem artifacts/package/* | ForEach-Object FullName)

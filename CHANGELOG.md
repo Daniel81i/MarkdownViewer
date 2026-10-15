@@ -4,7 +4,7 @@
 
 形式は Keep a Changelog をベースにし、バージョン番号は Semantic Versioning に準拠します。
 
-## [Unreleased]
+## [0.9.0] - 2026-10-15
 
 ### Added
 
@@ -16,6 +16,8 @@
 
 ### Changed
 
+- ライブラリを更新: marked 18.1.1 / DOMPurify 3.4.17 / Mermaid(tiny) 12.2.0 / github-markdown-css 5.9.0 / WebView2 SDK 1.0.4258.31 / AvalonDock 4.74.1
+- 配布物から WebView2 SDK 付属の API ドキュメント (`*.xml`) を除外
 - 画面内の固定色（`#222` など）を `Themes/LightColors.xaml` / `Themes/DarkColors.xaml` のブラシ参照に変更
 - 標準コントロールの見た目が Fluent テーマ（Windows 11 風）になる
 - `settings.json` に `Theme` を追加（`System` / `Light` / `Dark`、既定は `System`）
